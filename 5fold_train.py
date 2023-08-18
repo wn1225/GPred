@@ -2,7 +2,6 @@ import argparse
 from itertools import product
 import os
 
-# 指定使用0,1,2三块卡
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import torch
 
@@ -64,13 +63,13 @@ def load_data(data_path):
 
             for j in range(n):
                 row = f.readline().strip().split()
-                point_tag.append(int(row[2]))  # label , atom level
-                mask.append(int(row[3]))  # surface
-                mask_t.append(int(row[0]))  # residue types
+                point_tag.append(int(row[2])) 
+                mask.append(int(row[3])) 
+                mask_t.append(int(row[0])) 
                 pos, fea_pssm = np.array([float(w) for w in row[4:7]]), np.array([float(w) for w in row[7:]])
                 point_pos.append(pos)
                 point_fea_pssm.append(fea_pssm)
-                point_aa.append(int(row[1]))  # atom
+                point_aa.append(int(row[1])) 
 
             flag = -1
             for i in range(len(point_aa)):
@@ -98,7 +97,7 @@ def load_data(data_path):
 
             aa = torch.tensor(point_aa)
             # print(aa)
-            number = len(aa_y)  # 氨基酸数量
+            number = len(aa_y)  
             aa_y = torch.tensor(aa_y)
 
             data.aa = aa
@@ -178,10 +177,7 @@ class Net(torch.nn.Module):
     def __init__(self, out_channels=1):
         super().__init__()
         self.conv1 = PointTransformerConv1(5, in_channels=39 + 20, out_channels=128)
-        self.conv2 = PointTransformerConv1(8.5, in_channels=39 + 20, out_channels=128)
-        # self.conv3 = PointTransformerConv1(10, in_channels=39 + 20, out_channels=128)
-        self.neck = Seq(Lin(128 + 128, 512), BN(512), ReLU(), Dropout(0.3))
-        # self.conv4 = PointTransformerConv1(15, in_channels=512, out_channels=512)
+        self.neck = Seq(Lin(128, 512), BN(512), ReLU(), Dropout(0.3))
         self.mlp = Seq(Lin(512, 256), BN(256), ReLU(), Dropout(0.3), Lin(256, out_channels))
 
     def forward(self, data, use=None):
@@ -199,10 +195,8 @@ class Net(torch.nn.Module):
                 pool_batch[i] = torch.Tensor([num]).to(device)
 
         x1 = self.conv1(x0, pos, normal, batch)
-        x2 = self.conv2(x0, pos, normal, batch)
-        # x3 = self.conv3(x0, pos, normal, batch)
-        # print(batch)
-        out = self.neck(torch.cat([x1, x2], dim=1))
+
+        out = self.neck(torch.cat([x1], dim=1))
         out = global_max_pool(out, pool_batch)  # out-512
         # print(out)
 
@@ -228,34 +222,15 @@ class Net(torch.nn.Module):
         # out = self.conv4(out, aa_pos, aa_norm, aa_batch)
         out = self.mlp(out)
 
-        # mask = global_max_pool(mask.unsqueeze(dim=1), pool_batch).squeeze()
-        # mask = mask == 1
+     
         mask_t = global_max_pool(mask_t.unsqueeze(dim=1), pool_batch).squeeze()
         mask_t = mask_t == 1
 
-        # data.label = mask & data.aa_y
-        # data.label = data.aa_y[mask & mask_t]
-        # out = out[mask & mask_t]
         data.label = data.aa_y[mask_t]
         out = out[mask_t]
 
         return out
 
-
-# class FocalLoss(nn.Module):
-#     def __init__(self, alpha=.25, gamma=2):
-#         super(FocalLoss, self).__init__()
-#         self.alpha = alpha
-#         self.gamma = gamma
-#
-#     def forward(self, inputs, targets, mask_t):
-#
-#         pos_weight = torch.FloatTensor([1.0]).to(device)
-#         BCE_loss = F.binary_cross_entropy_with_logits(inputs, targets, pos_weight=pos_weight, reduction='mean')
-#         # pt = torch.exp(-BCE_loss)
-#         # F_loss = self.alpha * (1 - pt) ** self.gamma * BCE_loss
-#         loss = self.alpha * BCE_loss
-#         return loss.mean()
 
 def BCE_loss(inputs, targets, m):
     pos_weight = torch.tensor([m]).to(device)
@@ -323,7 +298,7 @@ def train_model(model, patience, n_epochs, checkpoint, m):
         valid_losses = []
         label_total = []
         score_total = []
-        print("第%d个epoch的学习率：%f" % (epoch, optimizer.param_groups[0]['lr']))
+        print("Learning rate of the %dth epoch：%f" % (epoch, optimizer.param_groups[0]['lr']))
         scheduler.step(valid_loss)
         early_stopping(valid_loss, model)
 
