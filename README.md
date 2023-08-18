@@ -2,9 +2,9 @@
 
 The interaction between the metal ions and the proteins are essential for various biological functions like maintaining the protein structure, signal transport, etc. Protein-ion interaction is useful for understanding the biological function of proteins and for designing novel drug. While several computational approaches have been proposed, this remains a difficult problem due to the small size and high versatility of metal ions. In this study, we propose GPred, which is a structure-based method that transforms the three-dimensional structure of the protein to point cloud and uses the Graph Neural Network (GNN) to learn the local structural properties of each amino acid residue under specific ligand-binding supervision.
 ## Installation Guide
-### Install PCBEP from GPred
+### Install GPred from GitHub
 ```shell
-git clone  https://github.com/wn1225/GPred
+[git clone  https://github.com/wn1225/GPred](https://github.com/wn1225/GPred.git)
 ```
 ### Install dependency packages
 1. Install `PyTorch` following the [official guide](https://pytorch.org/get-started/locally/).
@@ -20,7 +20,7 @@ First unzip the file:'Data/feature_pssm_types_ZN.zip'
 
 If you want to evaluate the results of our data.
 ```shell
-python GPred_test.py
+python GPred_5fold_train.py
 ```
 If you want to train our 5-fold cross-validation model.
 ```shell
@@ -72,10 +72,12 @@ python Pretreatment/generate.py -l ../Data/label.txt -f ../Data/ -s ../Data/surf
 - `-o`or`--output` output file path. [default:'../Data/data_feature_surface.txt']
 - `-fr`or`--output1` final output.  [default:'../Data/feature_pssm_types.txt']
 
-### 5. Get test result
+### 5. Get model and test result
 ```
-python GPred_test.py -i Data/feature_pssm_types.txt -c checkpoint.pt -o result/result.txt
+python GPred_train.py -input Data/feature_pssm_types.txt -tnum 442 -cpath Data/pt/ -spath Data/result/ -mpath Data/
 ```
-- `-i`or`--input` file path for fature path. [default:'Data/feature_pssm_types.txt']
-- `-c`or`--checkpoint` file path for pre-trained model.. [default:'checkpoint.pt']
-- `-o`or`--ouptup` output file path. [default:'result/result.txt']
+- `-input`or`--input` file path for fature path. [default:'Data/feature_pssm_types.txt']
+- `-cpath`or`--cpath` file path for pre-trained model. [default:'Data/pt/']
+- `-spath`or`--spathp` output file path. [default:'Data/result/']
+- `-tnum`or`--tnum` Split Test Sets. [default:'442']
+- `-mpath`or`--mpath` Documentation of the results of the indicators of the test set. [default:'Data/']
