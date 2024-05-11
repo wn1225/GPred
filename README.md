@@ -1,4 +1,4 @@
-# GPred: Prediction of metal ion-ligand binding using Graph Neural Networks
+# GPred: Prediction of metal ion-ligand binding sites using geometry-aware graph neural networks
 
 The interaction between the metal ions and the proteins are essential for various biological functions like maintaining the protein structure, signal transport, etc. Protein-ion interaction is useful for understanding the biological function of proteins and for designing novel drug. While several computational approaches have been proposed, this remains a difficult problem due to the small size and high versatility of metal ions. In this study, we propose GPred, which is a structure-based method that transforms the three-dimensional structure of the protein to point cloud and uses the Graph Neural Network (GNN) to learn the local structural properties of each amino acid residue under specific ligand-binding supervision.
 ## Installation Guide
